@@ -17,9 +17,18 @@ This class has no fields and hence no associated state: it simply validates argu
 
 
 ### Commit
-This contains the following information:
+
+This class represents a Commit that will be stored in a file. Because each Commit will have a unique SHA-1 hash, we will
+use the first two characters as the directory in the `.gitlet` folder, and the remaining characters as the filename 
+within that directory as the name of the file that the object is serialized to.
+
+All Commit objects are serialized within the `objects` folder which is within the `.gitlet` folder. The Commit class has
+helpful methods that will return the Commit object corresponding to some SHA-1 hash given to it, as well as write that 
+Commit to a file to persist its changes.
+
+This class will contain the following information:
 - Metadata
-  - Commit Log
+  - Commit log message
   - Timestamp
 - Reference to a tree
   - Tree: Directory structure mapping names to references to blobs
@@ -32,16 +41,26 @@ This contains the following information:
 2. Field 2
 
 
+### Reference
+
+This class represents a Reference, which will store a commit's SHA-1 value under a simple name so that the simple name
+can be used instead of the raw SHA-1 value.
+
+The simple name will include an object for HEAD, master, as well as all the other branches.
+
+The HEAD file is usually a symbolic reference to the branch you’re currently on. However, in some rare cases the HEAD
+file may contain the SHA-1 value of a gitlet object.
+
+
 ### Repository
-NOTE: Copied from Capers. Need to update
-This is where the main logic of our program will live. This file will handle all of the actual capers commands by
-reading/writing from/to the correct file, setting up persistence, and additional error checking.
 
-It will also be responsible for setting up all persistence within capers. This includes creating the .capers folder as
-well as the folder and file where we store all Dog objects and the current story.
+This is where the main logic of our program will live. This file will handle all the actual gitlet commands.
 
-This class defers all Dog specific logic to the Dog class: for example, instead of having the CapersRepository class
-handle Dog serialization and deserialization, we have the Dog class contain the logic for that.
+It will also be responsible for setting up all persistence within gitlet. This includes creating the `.gitlet` folder as
+well as the folders and files where we store all Commit objects.
+
+This class defers all Commit specific logic to the Commit class: for example, instead of having the Repository class
+handle Commit serialization and deserialization, we have the Commit class contain the logic for that.
 
 #### Fields
 
@@ -53,3 +72,5 @@ handle Dog serialization and deserialization, we have the Dog class contain the 
 
 ## Persistence
 
+# Notes
+- Adding to the staging area creates a new SHA-1 hash for the file
