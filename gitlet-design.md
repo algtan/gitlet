@@ -71,6 +71,22 @@ handle Commit serialization and deserialization, we have the Commit class contai
 ## Algorithms
 
 ## Persistence
+The directory structure looks like this:
+
+```
+CWD                                                           <==== Whatever the current working directory is
+└── .gitlet                                                   <==== All persistant data is stored within here
+    ├── HEAD                                                  <==== Where the HEAD reference is stored (a file)
+    └── objects                                               <==== All blobs and commits are stored in this directory
+        ├── xx                
+        ├── ...
+        └── <first 2 characters of SHA-1 hash>                <==== Directory for blobs and commits
+            └── <remaining 38 characters of SHA-1 hash>       <==== A Commit instance or blob stored to a file
+    └── refs                                                  <==== All referenes are stored in this directory
+        ├── master                                            <==== A reference containing a SHA-1 hash for a commit
+        ├── ...
+        └── <branch name>
+```
 
 # Notes
 - Adding to the staging area creates a new SHA-1 hash for the file
