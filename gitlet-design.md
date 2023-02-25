@@ -89,4 +89,70 @@ CWD                                                           <==== Whatever the
 ```
 
 # Notes
-- Adding to the staging area creates a new SHA-1 hash for the file
+
+## Hashing
+A SHA-1 hash will be created for the following two objects:
+
+1. Blob
+2. Commit
+
+### Blob object
+To distinguish different files, including different versions of files, we will get a SHA-1 hash on the contents. But
+there may be times when the contents are the same (file is renamed, or separate files with different names  have the
+same contents). In these instances, we will still want to produce the same SHA-1 hash. Therefore, filename should not
+play a factor in calculating the hash.
+
+### Commit object
+The SHA-1 hash for a Commit object needs to include all metadata and references. Therefore, the SHA-1 hash will be the
+result of the log message, timestamp, mapping of file names to blob references (tree), a parent reference, and (for 
+merges) a second parent reference.
+
+## Checkpoint commands
+### init
+
+Creates a new Gitlet version-control system in the current directory. This system will automatically start with one
+commit: a commit that contains no files and has the commit message `initial commit` (just like that, with no
+punctuation). It will have a single branch: `master`, which initially points to this initial commit, and `master` will
+be the current branch. The timestamp for this initial commit will be 00:00:00 UTC, Thursday, 1 January 1970.
+
+#### File Structure
+
+```
+CWD
+└── .gitlet
+    ├── HEAD
+    └── objects
+        └── <first 2 characters of initial commit's SHA-1 hash>
+            └── <remaining 38 characters of initial commit's SHA-1 hash>
+    └── refs
+        └── master   
+```
+
+### add
+
+Adds a copy of the file as it currently exists to the staging area. Staging an already-staged file overwrites the
+previous entry in the staging area with the new contents. The staging area should be somewhere in `.gitlet`. If the
+current working version of the file is identical to the version in the current commit, do not stage it to be added, and
+remove it from the staging area if it is already there
+
+### commit
+
+By default a commit has the same file contents as its parent. Files staged for addition and removal are the updates to
+the commit. Of course, the date (and likely the mesage) will also different from the parent.
+
+### checkout -- [file name]
+
+Takes the version of the file as it exists in the head commit and puts it in the working directory, overwriting the
+version of the file that’s already there if there is one. The new version of the file is not staged.
+
+### checkout [commit id] -- [file name]
+
+Takes the version of the file as it exists in the commit with the given id, and puts it in the working directory,
+overwriting the version of the file that’s already there if there is one. The new version of the file is not staged.
+
+### log
+
+Starting at the current head commit, display information about each commit backwards along the commit tree until the
+initial commit, following the first parent commit links, ignoring any second parents found in merge commits. For every
+node in this history, the information it should display is the commit id, the time the commit was made, and the commit
+message.
