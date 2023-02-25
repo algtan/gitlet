@@ -77,11 +77,16 @@ The directory structure looks like this:
 CWD                                                           <==== Whatever the current working directory is
 └── .gitlet                                                   <==== All persistant data is stored within here
     ├── HEAD                                                  <==== Where the HEAD reference is stored (a file)
-    └── objects                                               <==== All blobs and commits are stored in this directory
-        ├── xx                
-        ├── ...
-        └── <first 2 characters of SHA-1 hash>                <==== Directory for blobs and commits
-            └── <remaining 38 characters of SHA-1 hash>       <==== A Commit instance or blob stored to a file
+    ├── blobs                                                 <==== All blobs are stored in this directory
+    │   ├── xx                
+    │   ├── ...
+    │   └── <first 2 characters of SHA-1 hash>                <==== Directory for blobs
+    │       └── <remaining 38 characters of SHA-1 hash>       <==== A blob stored to a file
+    ├── commits                                               <==== All commits are stored in this directory
+    │   ├── xx                
+    │   ├── ...
+    │   └── <first 2 characters of SHA-1 hash>                <==== Directory for commits
+    │       └── <remaining 38 characters of SHA-1 hash>       <==== A Commit instance stored to a file
     └── refs                                                  <==== All referenes are stored in this directory
         ├── master                                            <==== A reference containing a SHA-1 hash for a commit
         ├── ...
@@ -121,9 +126,10 @@ be the current branch. The timestamp for this initial commit will be 00:00:00 UT
 CWD
 └── .gitlet
     ├── HEAD
-    └── objects
-        └── <first 2 characters of initial commit's SHA-1 hash>
-            └── <remaining 38 characters of initial commit's SHA-1 hash>
+    ├── blobs (empty)
+    ├── commits
+    │   └── <first 2 characters of initial commit's SHA-1 hash>
+    │       └── <remaining 38 characters of initial commit's SHA-1 hash>
     └── refs
         └── master   
 ```
