@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+
+import static gitlet.Commit.*;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -26,4 +28,7 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
     /* TODO: fill in the rest of this class. */
+    public static void setupPersistence() {
+        COMMIT_FOLDER.mkdirs();
+    }
 }
