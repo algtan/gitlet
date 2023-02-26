@@ -17,6 +17,9 @@ public class Main {
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
+                if (Repository.gitletInitiated()) {
+                    exitWithMessage("A Gitlet version-control system already exists in the current directory.");
+                }
                 validateNumArgs("init", args, 1);
 
                 Repository.setupPersistence();
@@ -33,8 +36,12 @@ public class Main {
 
     public static void validateNumArgs(String cmd, String[] args, int n) {
         if (args.length != n) {
-            Utils.message("Incorrect operands.");
-            System.exit(0);
+            exitWithMessage("Incorrect operands.");
         }
+    }
+
+    public static void exitWithMessage(String msg) {
+        Utils.message(msg);
+        System.exit(0);
     }
 }

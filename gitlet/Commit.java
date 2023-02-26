@@ -23,7 +23,7 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
-    static final File COMMIT_FOLDER = Utils.join(GITLET_DIR, "commits");
+    static final File COMMIT_DIR = Utils.join(GITLET_DIR, "commits");
 
     /** The message of this Commit. */
     private String message;
