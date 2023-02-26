@@ -4,7 +4,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.Date;
+import java.util.TreeMap;
 
 import static gitlet.Repository.*;
 
@@ -27,6 +28,18 @@ public class Commit implements Serializable {
 
     /** The message of this Commit. */
     private String message;
+    /** The timestamp of this Commit. */
+    private long timestamp;
+    /** The tree of this Commit. */
+    private TreeMap<String, String> tree;
+    /** The 1st parent Commit of this Commit. */
+    private String parent1Commit;
+    /** The 2nd parent Commit of this Commit as the result of a 'merge'. */
+    private String parent2Commit;
 
     /* TODO: fill in the rest of this class. */
+    public Commit() {
+        this.message = "initial commit";
+        this.timestamp = 0;
+    }
 }

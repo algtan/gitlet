@@ -38,20 +38,31 @@ public class Repository {
     }
 
     public static void setupPersistence() {
+        Commit initialCommit = new Commit();
+        byte[] serializedCommit = Utils.serialize(initialCommit);
+        String commitHash = sha1(serializedCommit);
+        String commitHashDir = commitHash.substring(0, 2);
+        String commitHashFile = commitHash.substring(2);
+        File initalCommitDir = join(COMMIT_DIR, commitHashDir);
+
+        initalCommitDir.mkdirs();
         BLOBS_DIR.mkdirs();
-        COMMIT_DIR.mkdirs();
         REFS_DIR.mkdirs();
 
+        File initialCommitFile = Utils.join(initalCommitDir, commitHashFile);
         File head = Utils.join(GITLET_DIR, "HEAD");
         File master = Utils.join(REFS_DIR, "master");
 
         try {
+            initialCommitFile.createNewFile();
             head.createNewFile();
             master.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Utils.writeContents(head, "ref: refs/master\n");
+        Utils.writeObject(initialCommitFile, serializedCommit);
+        Utils.writeContents(head, "ref: refs/master");
+        Utils.writeContents(master, commitHash);
     }
 }

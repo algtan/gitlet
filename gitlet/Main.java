@@ -16,11 +16,10 @@ public class Main {
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                validateNumArgs("init", args, 1);
                 if (Repository.gitletInitiated()) {
                     exitWithMessage("A Gitlet version-control system already exists in the current directory.");
                 }
-                validateNumArgs("init", args, 1);
 
                 Repository.setupPersistence();
                 break;
