@@ -31,6 +31,8 @@ public class Repository {
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     /** The refs directory (for branches). */
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
+    /** The staging area. */
+    public static final File STAGING_DIR = join(GITLET_DIR, "staging");
 
     /* TODO: fill in the rest of this class. */
     public static boolean gitletInitiated() {
@@ -64,5 +66,20 @@ public class Repository {
         Utils.writeObject(initialCommitFile, serializedCommit);
         Utils.writeContents(head, "ref: refs/master");
         Utils.writeContents(master, commitHash);
+    }
+
+    public static void addFiletoStaging(String filename) {
+        STAGING_DIR.mkdirs();
+
+        // grab commit from head
+        // create Commit object from .gitlet folder
+        // create an original TreeMap from that commit
+        // create a staging TreeMap that will be used for the new commit
+
+        // compare staged file's filename and SHA-1 hash with the original TreeMap object
+        // if either filename or SHA-1 hash don't match in original TreeMap, add file to staging folder
+        // otherwise, remove file from staging (if one is there)
+
+        // update staging TreeMap whether file was added to staging
     }
 }

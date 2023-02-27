@@ -25,6 +25,13 @@ public class Main {
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
+                validateNumArgs("add", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                String filename = args[1];
+                Repository.addFiletoStaging(filename);
                 break;
             // TODO: FILL THE REST IN
             default:
