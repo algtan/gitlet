@@ -82,5 +82,9 @@ public class Repository {
         // otherwise, remove file from staging (if one is there)
 
         // update staging TreeMap whether file was added to staging
+
+    public static enum HashType {
+        BLOB,
+        COMMIT
     }
 }

@@ -41,9 +41,16 @@ This class will contain the following information:
 2. Field 2
 
 
+### HashFileStructure
 
+This class represents the directory and file information for a given SHA-1 hash.
 
+#### Fields
 
+1. `hashDirName`
+2. `hashFileName`
+3. `hashDir`
+4. `hashFile`
 
 ### Repository
 
