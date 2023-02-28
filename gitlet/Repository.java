@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeMap;
 
 import static gitlet.Commit.*;
 import static gitlet.Utils.*;
@@ -69,16 +70,33 @@ public class Repository {
     public static void addFiletoStaging(String filename) {
         STAGING_DIR.mkdirs();
 
-        // grab commit from head
-        // create Commit object from .gitlet folder
-        // create an original TreeMap from that commit
-        // create a staging TreeMap that will be used for the new commit
+        String parentRef = getReference(HEAD);
+        HashFileStructure parentCommitFileStruct = new HashFileStructure(parentRef, HashType.COMMIT);
+        Commit previousCommit = readObject(parentCommitFileStruct.getFile(), Commit.class);
 
-        // compare staged file's filename and SHA-1 hash with the original TreeMap object
-        // if either filename or SHA-1 hash don't match in original TreeMap, add file to staging folder
-        // otherwise, remove file from staging (if one is there)
+        String oldHash = previousCommit.getTree().get(filename);
+        byte[] fileToAddContents = readContents(join(CWD, filename));
+        String newHash = sha1(fileToAddContents);
+        File stagedFile = join(STAGING_DIR, filename);
 
-        // update staging TreeMap whether file was added to staging
+        if(newHash.equals(oldHash)) {
+            stagedFile.delete();
+            return;
+        }
+
+        writeContents(stagedFile, fileToAddContents);
+    }
+
+    private static String getReference(File file) {
+        String ref = readContentsAsString(file);
+        if (ref.startsWith("ref: ")) {
+            String branchFile = ref.split("ref: refs/")[1];
+            File branchRef = join(REFS_DIR, branchFile);
+            ref = readContentsAsString(branchRef);
+        }
+
+        return ref;
+    }
 
     public static enum HashType {
         BLOB,

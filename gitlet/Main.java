@@ -24,7 +24,6 @@ public class Main {
                 Repository.setupPersistence();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
                 validateNumArgs("add", args, 2);
                 if (!Repository.gitletInitiated()) {
                     exitWithMessage("Not in an initialized Gitlet directory.");
