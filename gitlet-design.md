@@ -41,15 +41,8 @@ This class will contain the following information:
 2. Field 2
 
 
-### Reference
 
-This class represents a Reference, which will store a commit's SHA-1 value under a simple name so that the simple name
-can be used instead of the raw SHA-1 value.
 
-The simple name will include an object for HEAD, master, as well as all the other branches.
-
-The HEAD file is usually a symbolic reference to the branch you’re currently on. However, in some rare cases the HEAD
-file may contain the SHA-1 value of a gitlet object.
 
 
 ### Repository
@@ -67,6 +60,16 @@ handle Commit serialization and deserialization, we have the Commit class contai
 1. Field 1
 2. Field 2
 
+
+### Reference
+
+While not necessarily a class, a Reference is a file that will store a commit's SHA-1 value under a simple name so that 
+the simple name can be used instead of the raw SHA-1 value.
+
+The simple name will include a file for HEAD, master, as well as all the other branches.
+
+The HEAD file is usually a symbolic reference to the branch you’re currently on. However, in some rare cases the HEAD
+file may contain the SHA-1 value of a gitlet object.
 
 ## Algorithms
 
