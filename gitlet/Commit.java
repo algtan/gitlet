@@ -45,6 +45,7 @@ public class Commit implements Serializable {
     public Commit() {
         this.message = "initial commit";
         this.timestamp = 0;
+        this.tree = new TreeMap<>();
     }
 
     public String getMessage() {
