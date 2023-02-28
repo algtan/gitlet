@@ -32,10 +32,14 @@ public class Commit implements Serializable {
     private long timestamp;
     /** The tree of this Commit. */
     private TreeMap<String, String> tree;
-    /** The 1st parent Commit of this Commit. */
-    private String parent1Commit;
-    /** The 2nd parent Commit of this Commit as the result of a 'merge'. */
-    private String parent2Commit;
+    /** The 1st parent Commit (as a reference string) of this Commit. */
+    private String parent1Ref;
+    /** The 2nd parent Commit (as a reference string) of this Commit as the result of a 'merge'. */
+    private String parent2Ref;
+    /** The 1st parent Commit (as reference to a Commit object) of this Commit. */
+    private transient Commit parent1Commit;
+    /** The 2nd parent Commit (as reference to a Commit object) of this Commit as the result of a 'merge'. */
+    private transient Commit parent2Commit;
 
     /* TODO: fill in the rest of this class. */
     public Commit() {
