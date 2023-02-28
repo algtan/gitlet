@@ -46,4 +46,40 @@ public class Commit implements Serializable {
         this.message = "initial commit";
         this.timestamp = 0;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public TreeMap<String, String> getTree() {
+        return tree;
+    }
+
+    public String getParent1Ref() {
+        return parent1Ref;
+    }
+
+    public String getParent2Ref() {
+        return parent2Ref;
+    }
+
+    public Commit getParent1Commit() {
+        return parent1Commit;
+    }
+
+    public void setParent1Commit(Commit parent1Commit) {
+        this.parent1Commit = parent1Commit;
+    }
+
+    public Commit getParent2Commit() {
+        return parent2Commit;
+    }
+
+    public void setParent2Commit(Commit parent2Commit) {
+        this.parent2Commit = parent2Commit;
+    }
 }
