@@ -33,6 +33,8 @@ public class Repository {
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     /** The staging area. */
     public static final File STAGING_DIR = join(GITLET_DIR, "staging");
+    /** The HEAD reference file. */
+    public static final File HEAD = join(GITLET_DIR, "HEAD");
 
     /* TODO: fill in the rest of this class. */
     public static boolean gitletInitiated() {
@@ -41,7 +43,7 @@ public class Repository {
 
     public static void setupPersistence() {
         Commit initialCommit = new Commit();
-        byte[] serializedCommit = Utils.serialize(initialCommit);
+        byte[] serializedCommit = serialize(initialCommit);
         String commitHash = sha1(serializedCommit);
         String commitHashDir = commitHash.substring(0, 2);
         String commitHashFile = commitHash.substring(2);
@@ -51,21 +53,20 @@ public class Repository {
         BLOBS_DIR.mkdirs();
         REFS_DIR.mkdirs();
 
-        File initialCommitFile = Utils.join(initalCommitDir, commitHashFile);
-        File head = Utils.join(GITLET_DIR, "HEAD");
-        File master = Utils.join(REFS_DIR, "master");
+        File initialCommitFile = join(initalCommitDir, commitHashFile);
+        File master = join(REFS_DIR, "master");
 
         try {
             initialCommitFile.createNewFile();
-            head.createNewFile();
+            HEAD.createNewFile();
             master.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Utils.writeObject(initialCommitFile, serializedCommit);
-        Utils.writeContents(head, "ref: refs/master");
-        Utils.writeContents(master, commitHash);
+        writeObject(initialCommitFile, initialCommit);
+        writeContents(HEAD, "ref: refs/master");
+        writeContents(master, commitHash);
     }
 
     public static void addFiletoStaging(String filename) {
