@@ -43,21 +43,18 @@ public class Repository {
 
     public static void setupPersistence() {
         Commit initialCommit = new Commit();
-        byte[] serializedCommit = serialize(initialCommit);
-        String commitHash = sha1(serializedCommit);
-        String commitHashDir = commitHash.substring(0, 2);
-        String commitHashFile = commitHash.substring(2);
-        File initalCommitDir = join(COMMIT_DIR, commitHashDir);
+        String commitHash = sha1(serialize(initialCommit));
+        HashFileStructure commitHashFileStruct = new HashFileStructure(commitHash, HashType.COMMIT);
 
-        initalCommitDir.mkdirs();
+        commitHashFileStruct.getDir().mkdirs();
         BLOBS_DIR.mkdirs();
         REFS_DIR.mkdirs();
 
-        File initialCommitFile = join(initalCommitDir, commitHashFile);
+        File initialCommitFile = commitHashFileStruct.getFile();
         File master = join(REFS_DIR, "master");
 
         try {
-            initialCommitFile.createNewFile();
+            commitHashFileStruct.getFile().createNewFile();
             HEAD.createNewFile();
             master.createNewFile();
         } catch (IOException e) {
