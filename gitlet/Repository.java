@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.TreeMap;
 
 import static gitlet.Commit.*;
@@ -85,6 +86,53 @@ public class Repository {
         }
 
         writeContents(stagedFile, fileToAddContents);
+    }
+
+    public static void commitStagedChanges(String message) {
+        String parentRef = getReference(HEAD);
+        HashFileStructure parentCommitFileStruct = new HashFileStructure(parentRef, HashType.COMMIT);
+        Commit parentCommit = readObject(parentCommitFileStruct.getFile(), Commit.class);
+
+        TreeMap<String, String> previousCommitTree = parentCommit.getTree();
+        TreeMap<String, String> newCommitTree = new TreeMap<>();
+        newCommitTree.putAll(previousCommitTree);
+
+        for (String stagedFilename : plainFilenamesIn(STAGING_DIR)) {
+            File stagedFile = join(STAGING_DIR, stagedFilename);
+            byte[] stagedFileContents = readContents(stagedFile);
+            String newHash = sha1(stagedFileContents);
+            newCommitTree.put(stagedFilename, newHash);
+
+            HashFileStructure blobFileStruct = new HashFileStructure(newHash, HashType.BLOB);
+            blobFileStruct.getDir().mkdirs();
+            File blobFile = blobFileStruct.getFile();
+            try {
+                blobFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            writeContents(blobFile, stagedFileContents);
+
+            stagedFile.delete();
+        }
+
+        Commit newCommit = new Commit(message, newCommitTree, parentRef);
+        String commitHash = sha1(serialize(newCommit));
+        HashFileStructure commitHashFileStruct = new HashFileStructure(commitHash, HashType.COMMIT);
+
+        commitHashFileStruct.getDir().mkdirs();
+
+        File newCommitFile = commitHashFileStruct.getFile();
+        File master = join(REFS_DIR, "master");
+
+        try {
+            newCommitFile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        writeObject(newCommitFile, newCommit);
+        writeContents(master, commitHash);
     }
 
     private static String getReference(File file) {

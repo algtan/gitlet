@@ -32,6 +32,15 @@ public class Main {
                 String filename = args[1];
                 Repository.addFiletoStaging(filename);
                 break;
+            case "commit":
+                validateNumArgs("commit", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                String message = args[1];
+                Repository.commitStagedChanges(message);
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");

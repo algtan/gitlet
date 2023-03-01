@@ -48,6 +48,13 @@ public class Commit implements Serializable {
         this.tree = new TreeMap<>();
     }
 
+    public Commit(String message, TreeMap<String, String> tree, String parent1Ref) {
+        this.message = message;
+        this.timestamp = new Date().getTime() / 1000;
+        this.tree = tree;
+        this.parent1Ref = parent1Ref;
+    }
+
     public String getMessage() {
         return message;
     }
