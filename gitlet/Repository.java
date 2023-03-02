@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeMap;
 
@@ -37,6 +38,8 @@ public class Repository {
     public static final File STAGING_DIR = join(GITLET_DIR, "staging");
     /** The HEAD reference file. */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
+
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
 
     /* TODO: fill in the rest of this class. */
     public static boolean gitletInitiated() {
@@ -94,6 +97,27 @@ public class Repository {
 
         long currentTimestamp = new Date().getTime() / 1000;
         createCommit(currentBranch, message, currentTimestamp, newCommitTree, parentRef);
+    }
+
+    public static void logHeadHistory() {
+        String parentRef = getBranchRef(getCurrentBranch());
+
+        while (parentRef != null) {
+            Commit currentCommit = getCommit(parentRef);
+            Date commitDate = new Date(currentCommit.getTimestamp() * 1000);
+            String parent2Ref = currentCommit.getParent2Ref();
+
+            System.out.println("===");
+            System.out.println("commit " + parentRef);
+            if (parent2Ref != null) {
+                System.out.println("Merge: " + parentRef.substring(0, 7) + " " + parent2Ref.substring(0, 7));
+            }
+            System.out.println("Date: " + SIMPLE_DATE_FORMAT.format(commitDate));
+            System.out.println(currentCommit.getMessage());
+            System.out.println();
+
+            parentRef = currentCommit.getParent1Ref();
+        }
     }
 
     private static String getCurrentBranch() {

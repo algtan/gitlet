@@ -41,6 +41,14 @@ public class Main {
                 String message = args[1];
                 Repository.commitStagedChanges(message);
                 break;
+            case "log":
+                validateNumArgs("log", args, 1);
+                if (!Repository.gitletInitiated()) {
+                    exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                Repository.logHeadHistory();
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");
