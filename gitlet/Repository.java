@@ -58,13 +58,13 @@ public class Repository {
 
         String parentRef = getBranchRef(getCurrentBranch());
         Commit parentCommit = getCommit(parentRef);
-
         String oldHash = parentCommit.getTree().get(filename);
+
         byte[] fileToAddContents = readContents(join(CWD, filename));
         String newHash = sha1(fileToAddContents);
         File stagedFile = join(STAGING_DIR, filename);
 
-        if(newHash.equals(oldHash)) {
+        if (newHash.equals(oldHash)) {
             stagedFile.delete();
             return;
         }
@@ -75,26 +75,25 @@ public class Repository {
     public static void commitStagedChanges(String message) {
         String currentBranch = getCurrentBranch();
         String parentRef = getBranchRef(currentBranch);
-        Commit parentCommit = getCommit(parentRef);
 
-        TreeMap<String, String> previousCommitTree = parentCommit.getTree();
+        TreeMap<String, String> parentCommitTree = getCommit(parentRef).getTree();
         TreeMap<String, String> newCommitTree = new TreeMap<>();
-        newCommitTree.putAll(previousCommitTree);
+        newCommitTree.putAll(parentCommitTree);
 
         for (String stagedFilename : plainFilenamesIn(STAGING_DIR)) {
             File stagedFile = join(STAGING_DIR, stagedFilename);
             byte[] stagedFileContents = readContents(stagedFile);
             String newHash = sha1(stagedFileContents);
-            newCommitTree.put(stagedFilename, newHash);
-
             File blobFile = join(BLOBS_DIR, newHash);
+
             writeContents(blobFile, stagedFileContents);
 
+            newCommitTree.put(stagedFilename, newHash);
             stagedFile.delete();
         }
 
-        long timestamp = new Date().getTime() / 1000;
-        createCommit(currentBranch, message, timestamp, newCommitTree, parentRef);
+        long currentTimestamp = new Date().getTime() / 1000;
+        createCommit(currentBranch, message, currentTimestamp, newCommitTree, parentRef);
     }
 
     private static String getCurrentBranch() {
