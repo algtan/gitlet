@@ -47,15 +47,6 @@ public class Repository {
         REFS_DIR.mkdirs();
 
         String branchName = "master";
-        File master = join(REFS_DIR, branchName);
-
-        try {
-            HEAD.createNewFile();
-            master.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         writeContents(HEAD, branchName);
         createCommit(branchName, "initial commit", 0, new TreeMap<>(), null);
     }
@@ -97,11 +88,6 @@ public class Repository {
             HashFileStructure blobFileStruct = new HashFileStructure(newHash, HashType.BLOB);
             blobFileStruct.getDir().mkdirs();
             File blobFile = blobFileStruct.getFile();
-            try {
-                blobFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
             writeContents(blobFile, stagedFileContents);
 
             stagedFile.delete();
@@ -134,12 +120,6 @@ public class Repository {
 
         File commitFile = commitHashFileStruct.getFile();
         File branchFile = join(REFS_DIR, branchName);
-
-        try {
-            commitFile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         writeObject(commitFile, commit);
         writeContents(branchFile, commitHash);
