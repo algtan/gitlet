@@ -4,6 +4,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static gitlet.Repository.*;
@@ -14,7 +15,7 @@ import static gitlet.Repository.*;
  *
  *  @author TODO
  */
-public class Commit implements Serializable {
+public class Commit implements Serializable, Dumpable {
     /**
      * TODO: add instance variables here.
      *
@@ -82,5 +83,14 @@ public class Commit implements Serializable {
 
     public void setParent2Commit(Commit parent2Commit) {
         this.parent2Commit = parent2Commit;
+    }
+
+    @Override
+    public void dump() {
+        System.out.println("message: " + this.message);
+        System.out.println("timestamp: " + this.timestamp);
+        System.out.println("tree:" + this.tree.toString());
+        System.out.println("parent1Ref " + this.parent1Ref);
+        System.out.println("parent2Ref " + this.parent2Ref);
     }
 }
