@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.TreeMap;
 
+import static gitlet.Commit.COMMIT_DIR;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -44,6 +45,7 @@ public class Repository {
 
     public static void setupPersistence() {
         BLOBS_DIR.mkdirs();
+        COMMIT_DIR.mkdirs();
         REFS_DIR.mkdirs();
 
         String branchName = "master";
@@ -85,9 +87,7 @@ public class Repository {
             String newHash = sha1(stagedFileContents);
             newCommitTree.put(stagedFilename, newHash);
 
-            HashFileStructure blobFileStruct = new HashFileStructure(newHash, HashType.BLOB);
-            blobFileStruct.getDir().mkdirs();
-            File blobFile = blobFileStruct.getFile();
+            File blobFile = join(BLOBS_DIR, newHash);
             writeContents(blobFile, stagedFileContents);
 
             stagedFile.delete();
@@ -107,26 +107,18 @@ public class Repository {
     }
 
     private static Commit getCommit(String hash) {
-        HashFileStructure commitFileStruct = new HashFileStructure(hash, HashType.COMMIT);
-        return readObject(commitFileStruct.getFile(), Commit.class);
+        File commitFile = join(COMMIT_DIR, hash);
+        return readObject(commitFile, Commit.class);
     }
 
     private static void createCommit(String branchName, String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
         Commit commit = new Commit(message, timestamp, tree, parent1Ref);
         String commitHash = sha1(serialize(commit));
-        HashFileStructure commitHashFileStruct = new HashFileStructure(commitHash, HashType.COMMIT);
 
-        commitHashFileStruct.getDir().mkdirs();
-
-        File commitFile = commitHashFileStruct.getFile();
+        File commitFile = join(COMMIT_DIR, commitHash);
         File branchFile = join(REFS_DIR, branchName);
 
         writeObject(commitFile, commit);
         writeContents(branchFile, commitHash);
-    }
-
-    public static enum HashType {
-        BLOB,
-        COMMIT
     }
 }
