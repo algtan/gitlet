@@ -2,10 +2,9 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Date;
 import java.util.TreeMap;
 
-import static gitlet.Commit.*;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -44,38 +43,30 @@ public class Repository {
     }
 
     public static void setupPersistence() {
-        Commit initialCommit = new Commit();
-        String commitHash = sha1(serialize(initialCommit));
-        HashFileStructure commitHashFileStruct = new HashFileStructure(commitHash, HashType.COMMIT);
-
-        commitHashFileStruct.getDir().mkdirs();
         BLOBS_DIR.mkdirs();
         REFS_DIR.mkdirs();
 
-        File initialCommitFile = commitHashFileStruct.getFile();
-        File master = join(REFS_DIR, "master");
+        String branchName = "master";
+        File master = join(REFS_DIR, branchName);
 
         try {
-            commitHashFileStruct.getFile().createNewFile();
             HEAD.createNewFile();
             master.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        writeObject(initialCommitFile, initialCommit);
-        writeContents(HEAD, "ref: refs/master");
-        writeContents(master, commitHash);
+        writeContents(HEAD, branchName);
+        createCommit(branchName, "initial commit", 0, new TreeMap<>(), null);
     }
 
     public static void addFiletoStaging(String filename) {
         STAGING_DIR.mkdirs();
 
-        String parentRef = getReference(HEAD);
-        HashFileStructure parentCommitFileStruct = new HashFileStructure(parentRef, HashType.COMMIT);
-        Commit previousCommit = readObject(parentCommitFileStruct.getFile(), Commit.class);
+        String parentRef = getBranchRef(getCurrentBranch());
+        Commit parentCommit = getCommit(parentRef);
 
-        String oldHash = previousCommit.getTree().get(filename);
+        String oldHash = parentCommit.getTree().get(filename);
         byte[] fileToAddContents = readContents(join(CWD, filename));
         String newHash = sha1(fileToAddContents);
         File stagedFile = join(STAGING_DIR, filename);
@@ -89,9 +80,9 @@ public class Repository {
     }
 
     public static void commitStagedChanges(String message) {
-        String parentRef = getReference(HEAD);
-        HashFileStructure parentCommitFileStruct = new HashFileStructure(parentRef, HashType.COMMIT);
-        Commit parentCommit = readObject(parentCommitFileStruct.getFile(), Commit.class);
+        String currentBranch = getCurrentBranch();
+        String parentRef = getBranchRef(currentBranch);
+        Commit parentCommit = getCommit(parentRef);
 
         TreeMap<String, String> previousCommitTree = parentCommit.getTree();
         TreeMap<String, String> newCommitTree = new TreeMap<>();
@@ -116,34 +107,42 @@ public class Repository {
             stagedFile.delete();
         }
 
-        Commit newCommit = new Commit(message, newCommitTree, parentRef);
-        String commitHash = sha1(serialize(newCommit));
+        long timestamp = new Date().getTime() / 1000;
+        createCommit(currentBranch, message, timestamp, newCommitTree, parentRef);
+    }
+
+    private static String getCurrentBranch() {
+        return readContentsAsString(HEAD);
+    }
+
+    private static String getBranchRef(String branchName) {
+        File branchFile = join(REFS_DIR, branchName);
+        return readContentsAsString(branchFile);
+    }
+
+    private static Commit getCommit(String hash) {
+        HashFileStructure commitFileStruct = new HashFileStructure(hash, HashType.COMMIT);
+        return readObject(commitFileStruct.getFile(), Commit.class);
+    }
+
+    private static void createCommit(String branchName, String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
+        Commit commit = new Commit(message, timestamp, tree, parent1Ref);
+        String commitHash = sha1(serialize(commit));
         HashFileStructure commitHashFileStruct = new HashFileStructure(commitHash, HashType.COMMIT);
 
         commitHashFileStruct.getDir().mkdirs();
 
-        File newCommitFile = commitHashFileStruct.getFile();
-        File master = join(REFS_DIR, "master");
+        File commitFile = commitHashFileStruct.getFile();
+        File branchFile = join(REFS_DIR, branchName);
 
         try {
-            newCommitFile.createNewFile();
+            commitFile.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        writeObject(newCommitFile, newCommit);
-        writeContents(master, commitHash);
-    }
-
-    private static String getReference(File file) {
-        String ref = readContentsAsString(file);
-        if (ref.startsWith("ref: ")) {
-            String branchFile = ref.split("ref: refs/")[1];
-            File branchRef = join(REFS_DIR, branchFile);
-            ref = readContentsAsString(branchRef);
-        }
-
-        return ref;
+        writeObject(commitFile, commit);
+        writeContents(branchFile, commitHash);
     }
 
     public static enum HashType {

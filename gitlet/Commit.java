@@ -4,7 +4,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.TreeMap;
 
 import static gitlet.Repository.*;
@@ -42,15 +41,9 @@ public class Commit implements Serializable {
     private transient Commit parent2Commit;
 
     /* TODO: fill in the rest of this class. */
-    public Commit() {
-        this.message = "initial commit";
-        this.timestamp = 0;
-        this.tree = new TreeMap<>();
-    }
-
-    public Commit(String message, TreeMap<String, String> tree, String parent1Ref) {
+    public Commit(String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
         this.message = message;
-        this.timestamp = new Date().getTime() / 1000;
+        this.timestamp = timestamp;
         this.tree = tree;
         this.parent1Ref = parent1Ref;
     }
