@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeMap;
 
 import static gitlet.Commit.COMMIT_DIR;
@@ -63,7 +64,11 @@ public class Repository {
         Commit parentCommit = getCommit(parentRef);
         String oldHash = parentCommit.getTree().get(filename);
 
-        byte[] fileToAddContents = readContents(join(CWD, filename));
+        File fileToAdd = join(CWD, filename);
+        if (!fileToAdd.exists()) {
+            exitWithMessage("File does not exist.");
+        }
+        byte[] fileToAddContents = readContents(fileToAdd);
         String newHash = sha1(fileToAddContents);
         File stagedFile = join(STAGING_DIR, filename);
 
@@ -76,6 +81,10 @@ public class Repository {
     }
 
     public static void commitStagedChanges(String message) {
+        if (message.isBlank()) {
+            exitWithMessage("Please enter a commit message.");
+        }
+
         String currentBranch = getCurrentBranch();
         String parentRef = getBranchRef(currentBranch);
 
@@ -83,7 +92,12 @@ public class Repository {
         TreeMap<String, String> newCommitTree = new TreeMap<>();
         newCommitTree.putAll(parentCommitTree);
 
-        for (String stagedFilename : plainFilenamesIn(STAGING_DIR)) {
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        if (stagedFiles == null) {
+            exitWithMessage("No changes added to the commit.");
+        }
+
+        for (String stagedFilename : stagedFiles) {
             File stagedFile = join(STAGING_DIR, stagedFilename);
             byte[] stagedFileContents = readContents(stagedFile);
             String newHash = sha1(stagedFileContents);
