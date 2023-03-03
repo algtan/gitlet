@@ -18,7 +18,7 @@ public class Main {
             case "init":
                 validateNumArgs("init", args, 1);
                 if (Repository.gitletInitiated()) {
-                    exitWithMessage("A Gitlet version-control system already exists in the current directory.");
+                    Utils.exitWithMessage("A Gitlet version-control system already exists in the current directory.");
                 }
 
                 Repository.setupPersistence();
@@ -26,7 +26,7 @@ public class Main {
             case "add":
                 validateNumArgs("add", args, 2);
                 if (!Repository.gitletInitiated()) {
-                    exitWithMessage("Not in an initialized Gitlet directory.");
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
                 }
 
                 String filename = args[1];
@@ -35,7 +35,7 @@ public class Main {
             case "commit":
                 validateNumArgs("commit", args, 2);
                 if (!Repository.gitletInitiated()) {
-                    exitWithMessage("Not in an initialized Gitlet directory.");
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
                 }
 
                 String message = args[1];
@@ -44,7 +44,7 @@ public class Main {
             case "log":
                 validateNumArgs("log", args, 1);
                 if (!Repository.gitletInitiated()) {
-                    exitWithMessage("Not in an initialized Gitlet directory.");
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
                 }
 
                 Repository.logHeadHistory();
@@ -58,12 +58,9 @@ public class Main {
 
     public static void validateNumArgs(String cmd, String[] args, int n) {
         if (args.length != n) {
-            exitWithMessage("Incorrect operands.");
+            Utils.exitWithMessage("Incorrect operands.");
         }
     }
 
-    public static void exitWithMessage(String msg) {
-        Utils.message(msg);
-        System.exit(0);
     }
 }
