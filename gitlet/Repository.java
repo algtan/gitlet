@@ -120,6 +120,32 @@ public class Repository {
         }
     }
 
+    public static void checkoutFilePerHead(String filename) {
+        String headCommitHash = getBranchRef(getCurrentBranch());
+        checkoutFilePerCommitId(headCommitHash, filename);
+    }
+
+    public static void checkoutFilePerCommitId(String commitId, String filename) {
+        if (commitId.length() != UID_LENGTH) {
+            String shortenedId = commitId;
+            commitId = plainFilenamesIn(COMMIT_DIR).stream()
+                    .filter(commit -> commit.startsWith(shortenedId))
+                    .findFirst()
+                    .orElse(shortenedId);
+        }
+
+        if (!join(COMMIT_DIR, commitId).exists()) {
+            exitWithMessage("No commit with that id exists.");
+        }
+
+        String blobHash = getCommit(commitId).getTree().get(filename);
+        if (blobHash == null) {
+            exitWithMessage("File does not exist in that commit.");
+        }
+
+        writeBlobToCwd(filename, blobHash);
+    }
+
     private static String getCurrentBranch() {
         return readContentsAsString(HEAD);
     }
@@ -143,5 +169,13 @@ public class Repository {
 
         writeObject(commitFile, commit);
         writeContents(branchFile, commitHash);
+    }
+
+    private static void writeBlobToCwd(String filename, String blobHash) {
+        File blobFile = join(BLOBS_DIR, blobHash);
+        byte[] blobFileContents = readContents(blobFile);
+        File cwdFile = join(CWD, filename);
+
+        writeContents(cwdFile, blobFileContents);
     }
 }

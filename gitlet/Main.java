@@ -49,6 +49,30 @@ public class Main {
 
                 Repository.logHeadHistory();
                 break;
+            case "checkout":
+                validateNumArgs("checkout", args, 2, 4);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                String secondArg = args[1];
+                if (args.length == 2) {
+                    break;
+                }
+
+                String thirdArg = args[2];
+                if (args.length == 3 && secondArg.equals("--")) {
+                    Repository.checkoutFilePerHead(thirdArg);
+                    break;
+                }
+
+                if (args.length == 4 && thirdArg.equals("--")) {
+                    String fourthArg = args[3];
+                    Repository.checkoutFilePerCommitId(secondArg, fourthArg);
+                    break;
+                }
+
+                Utils.exitWithMessage("Incorrect operands");
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");
@@ -62,5 +86,9 @@ public class Main {
         }
     }
 
+    public static void validateNumArgs(String cmd, String[] args, int min, int max) {
+        if (args.length < min || args.length > max) {
+            Utils.exitWithMessage("Incorrect operands.");
+        }
     }
 }
