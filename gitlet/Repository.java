@@ -109,6 +109,7 @@ public class Repository {
             stagedFile.delete();
         }
 
+        STAGING_DIR.delete();
         long currentTimestamp = new Date().getTime() / 1000;
         createCommit(currentBranch, message, currentTimestamp, newCommitTree, parentRef);
     }
