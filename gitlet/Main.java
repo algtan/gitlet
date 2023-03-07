@@ -10,7 +10,7 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-            Utils.message("Please enter a command.");
+            Utils.exitWithMessage("Please enter a command.");
         }
 
         String firstArg = args[0];
