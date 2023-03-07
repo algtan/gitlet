@@ -165,3 +165,26 @@ Starting at the current head commit, display information about each commit backw
 initial commit, following the first parent commit links, ignoring any second parents found in merge commits. For every
 node in this history, the information it should display is the commit id, the time the commit was made, and the commit
 message.
+
+
+## Remaining Commands
+### status
+
+Displays what branches currently exist, and marks the current branch with a *. Also displays what files have been staged
+for addition or removal.
+
+### rm
+
+### global-log
+
+### find
+
+### branch
+
+### checkout [branch name]
+
+### rm-branch
+
+### reset
+
+### merge

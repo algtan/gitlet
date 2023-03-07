@@ -73,6 +73,14 @@ public class Main {
                 }
 
                 Utils.exitWithMessage("Incorrect operands");
+            case "status":
+                validateNumArgs("status", args, 1);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                Repository.getStatus();
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");

@@ -37,6 +37,8 @@ public class Repository {
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     /** The staging area. */
     public static final File STAGING_DIR = join(GITLET_DIR, "staging");
+    /** The removal area. */
+    public static final File REMOVAL_DIR = join(GITLET_DIR, "removal");
     /** The HEAD reference file. */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
 
@@ -133,6 +135,44 @@ public class Repository {
 
             parentRef = currentCommit.getParent1Ref();
         }
+    }
+
+    public static void getStatus() {
+        String currentBranch = getCurrentBranch();
+        List<String> branches = plainFilenamesIn(REFS_DIR);
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        List<String> removedFiles = plainFilenamesIn(REMOVAL_DIR);
+
+        int currentBranchIndex = branches.indexOf(currentBranch);
+        branches.set(currentBranchIndex, "*" + currentBranch);
+
+        System.out.println("=== Branches ===");
+        for (String branch : branches) {
+            System.out.println(branch);
+        }
+        System.out.println();
+
+        System.out.println("=== Staged Files ===");
+        if (stagedFiles != null) {
+            for (String stagedFile : stagedFiles) {
+                System.out.println(stagedFile);
+            }
+        }
+        System.out.println();
+
+        System.out.println("=== Removed Files ===");
+        if (removedFiles != null) {
+            for (String removedFile : removedFiles) {
+                System.out.println(removedFile);
+            }
+        }
+        System.out.println();
+
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
     }
 
     public static void checkoutFilePerHead(String filename) {
