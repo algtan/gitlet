@@ -212,6 +212,19 @@ public class Repository {
         writeBlobToCwd(filename, blobHash);
     }
 
+    public static void checkoutBranch(String branchName) {
+        List<String> branches = plainFilenamesIn(REFS_DIR);
+        String currentBranch = getCurrentBranch();
+
+        if (!branches.contains(branchName)) {
+            exitWithMessage("No such branch exists.");
+        }
+
+        if (currentBranch.equals(branchName)) {
+            exitWithMessage("No need to checkout the current branch.");
+        }
+    }
+
     public static void removeFile(String filename) {
         REMOVAL_DIR.mkdirs();
 

@@ -61,6 +61,7 @@ public class Main {
 
                 String secondArg = args[1];
                 if (args.length == 2) {
+                    Repository.checkoutBranch(secondArg);
                     break;
                 }
 

@@ -194,6 +194,11 @@ Creates a new branch with the given name, and points it at the current head comm
 
 ### checkout [branch name]
 
+Takes all files in the commit at the head of the given branch, and puts them in the working directory, overwriting the
+versions of the files that are already there if they exist. Also, at the end of this command, the given branch will now
+be considered the current branch (HEAD). Any files that are tracked in the current branch but are not present in the
+checked-out branch are deleted. The staging area is cleared, unless the checked-out branch is the current branch.
+
 ### rm-branch
 
 ### reset
