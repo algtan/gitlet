@@ -9,3 +9,12 @@ java gitlet.Main checkout -- <filename>
 # DumpCommit
 javac gitlet/DumpCommit.java
 java gitlet.DumpCommit <hash>
+
+# Testing
+- `/proj2` dir 
+  - javac gitlet/Main.java
+- `/testing` dir
+  - Individual Test
+    - python3 tester.py --verbose student_tests/<.in file>
+  - All Tests
+    - make check
