@@ -181,6 +181,8 @@ is tracked in the current commit).
 
 ### global-log
 
+Like log, except displays information about all commits ever made.
+
 ### find
 
 ### branch

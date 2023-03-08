@@ -132,19 +132,18 @@ public class Repository {
 
         while (parentRef != null) {
             Commit currentCommit = getCommit(parentRef);
-            Date commitDate = new Date(currentCommit.getTimestamp() * 1000);
-            String parent2Ref = currentCommit.getParent2Ref();
 
-            System.out.println("===");
-            System.out.println("commit " + parentRef);
-            if (parent2Ref != null) {
-                System.out.println("Merge: " + parentRef.substring(0, 7) + " " + parent2Ref.substring(0, 7));
-            }
-            System.out.println("Date: " + SIMPLE_DATE_FORMAT.format(commitDate));
-            System.out.println(currentCommit.getMessage());
-            System.out.println();
+            printCommitInfo(currentCommit, parentRef);
 
             parentRef = currentCommit.getParent1Ref();
+        }
+    }
+
+    public static void logAllCommits() {
+        List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
+        for (String commitHash : commitHashes) {
+            Commit commit = getCommit(commitHash);
+            printCommitInfo(commit, commitHash);
         }
     }
 
@@ -267,5 +266,20 @@ public class Repository {
         File cwdFile = join(CWD, filename);
 
         writeContents(cwdFile, blobFileContents);
+    }
+
+    private static void printCommitInfo(Commit commit, String commitHash) {
+        Date commitDate = new Date(commit.getTimestamp() * 1000);
+        String parent1Ref = commit.getParent1Ref();
+        String parent2Ref = commit.getParent2Ref();
+
+        System.out.println("===");
+        System.out.println("commit " + commitHash);
+        if (parent2Ref != null) {
+            System.out.println("Merge: " + parent1Ref.substring(0, 7) + " " + parent2Ref.substring(0, 7));
+        }
+        System.out.println("Date: " + SIMPLE_DATE_FORMAT.format(commitDate));
+        System.out.println(commit.getMessage());
+        System.out.println();
     }
 }

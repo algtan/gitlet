@@ -93,6 +93,14 @@ public class Main {
                 filename = args[1];
                 Repository.removeFile(filename);
                 break;
+            case "global-log":
+                validateNumArgs("global-log", args, 1);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                Repository.logAllCommits();
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");
