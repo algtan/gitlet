@@ -175,6 +175,10 @@ for addition or removal.
 
 ### rm
 
+Unstage the file if it is currently staged for addition. If the file is tracked in the current commit, stage it for
+removal and remove the file from the working directory if the user has not already done so (do not remove it unless it
+is tracked in the current commit).
+
 ### global-log
 
 ### find

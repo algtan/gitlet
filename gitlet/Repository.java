@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
@@ -76,6 +77,7 @@ public class Repository {
 
         if (newHash.equals(oldHash)) {
             stagedFile.delete();
+            join(REMOVAL_DIR, filename).delete();
             return;
         }
 
@@ -95,7 +97,11 @@ public class Repository {
         newCommitTree.putAll(parentCommitTree);
 
         List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
-        if (stagedFiles == null) {
+        stagedFiles = stagedFiles != null ? stagedFiles : new ArrayList<>();
+        List<String> removedFiles = plainFilenamesIn(REMOVAL_DIR);
+        removedFiles = removedFiles != null ? removedFiles : new ArrayList<>();
+
+        if (stagedFiles.size() == 0 && removedFiles.size() == 0) {
             exitWithMessage("No changes added to the commit.");
         }
 
@@ -111,7 +117,12 @@ public class Repository {
             stagedFile.delete();
         }
 
+        for (String removedFile : removedFiles) {
+            join(REMOVAL_DIR, removedFile).delete();
+        }
+
         STAGING_DIR.delete();
+        REMOVAL_DIR.delete();
         long currentTimestamp = new Date().getTime() / 1000;
         createCommit(currentBranch, message, currentTimestamp, newCommitTree, parentRef);
     }
@@ -199,6 +210,30 @@ public class Repository {
         }
 
         writeBlobToCwd(filename, blobHash);
+    }
+
+    public static void removeFile(String filename) {
+        REMOVAL_DIR.mkdirs();
+
+        String parentRef = getBranchRef(getCurrentBranch());
+        Commit parentCommit = getCommit(parentRef);
+        TreeMap<String, String> parentCommitTree = getCommit(parentRef).getTree();
+
+        if (parentCommitTree.containsKey(filename)) {
+            File removedFile = join(REMOVAL_DIR, filename);
+            writeContents(removedFile);
+            join(CWD, filename).delete();
+            return;
+        }
+
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        if (stagedFiles != null && stagedFiles.contains(filename)) {
+            File stagedFile = join(STAGING_DIR, filename);
+            stagedFile.delete();
+            return;
+        }
+
+        exitWithMessage("No reason to remove the file.");
     }
 
     private static String getCurrentBranch() {

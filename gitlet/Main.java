@@ -13,6 +13,9 @@ public class Main {
             Utils.exitWithMessage("Please enter a command.");
         }
 
+        String filename;
+        String message;
+
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
@@ -29,7 +32,7 @@ public class Main {
                     Utils.exitWithMessage("Not in an initialized Gitlet directory.");
                 }
 
-                String filename = args[1];
+                filename = args[1];
                 Repository.addFiletoStaging(filename);
                 break;
             case "commit":
@@ -38,7 +41,7 @@ public class Main {
                     Utils.exitWithMessage("Not in an initialized Gitlet directory.");
                 }
 
-                String message = args[1];
+                message = args[1];
                 Repository.commitStagedChanges(message);
                 break;
             case "log":
@@ -80,6 +83,15 @@ public class Main {
                 }
 
                 Repository.getStatus();
+                break;
+            case "rm":
+                validateNumArgs("status", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                filename = args[1];
+                Repository.removeFile(filename);
                 break;
             // TODO: FILL THE REST IN
             default:
