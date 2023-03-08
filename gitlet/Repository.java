@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static gitlet.Commit.COMMIT_DIR;
 import static gitlet.Utils.*;
@@ -233,6 +234,21 @@ public class Repository {
         }
 
         exitWithMessage("No reason to remove the file.");
+    }
+
+    public static void findCommits(String message) {
+        List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
+        List<String> foundCommitHashes = commitHashes.stream()
+                .filter(commitHash -> getCommit(commitHash).getMessage().equals(message))
+                .collect(Collectors.toList());
+
+        if (foundCommitHashes.size() == 0) {
+            exitWithMessage("Found no commit with that message.");
+        }
+
+        for (String foundCommitHash : foundCommitHashes) {
+            System.out.println(foundCommitHash);
+        }
     }
 
     private static String getCurrentBranch() {

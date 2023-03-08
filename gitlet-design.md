@@ -185,6 +185,9 @@ Like log, except displays information about all commits ever made.
 
 ### find
 
+Prints out the ids of all commits that have the given commit message, one per line. If there are multiple such commits,
+it prints the ids out on separate lines.
+
 ### branch
 
 ### checkout [branch name]

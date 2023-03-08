@@ -101,6 +101,15 @@ public class Main {
 
                 Repository.logAllCommits();
                 break;
+            case "find":
+                validateNumArgs("status", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                message = args[1];
+                Repository.findCommits(message);
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");
