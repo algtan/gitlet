@@ -86,15 +86,16 @@ The directory structure looks like this:
 ```
 CWD                                                           <==== Whatever the current working directory is
 └── .gitlet                                                   <==== All persistant data is stored within here
-    ├── HEAD                                                  <==== Where the HEAD reference is stored (a file)
     ├── blobs                                                 <==== All blobs are stored in this directory             
     │   └── <SHA-1 hash>                                      <==== A blob stored to a file
     ├── commits                                               <==== All commits are stored in this directory
     │   └── <SHA-1 hash>                                      <==== A Commit instance stored to a file
-    └── refs                                                  <==== All referenes are stored in this directory
-        ├── master                                            <==== A reference containing a SHA-1 hash for a commit
-        ├── ...
-        └── <branch name>
+    ├── refs                                                  <==== All referenes are stored in this directory
+    │   ├── master                                            <==== A reference containing a SHA-1 hash for a commit
+    │   ├── ...
+    │   └── <branch name>
+    ├── gitletignore                                          <==== Where CWD files to ignore are stored (a file)
+    └── HEAD                                                  <==== Where the HEAD reference is stored (a file)
 ```
 
 # Notes
@@ -129,12 +130,13 @@ be the current branch. The timestamp for this initial commit will be 00:00:00 UT
 ```
 CWD
 └── .gitlet
-    ├── HEAD
     ├── blobs (empty)
     ├── commits
     │   └── <initial commit's SHA-1 hash>
-    └── refs
-        └── master   
+    ├─── refs
+    │   └── master
+    ├── gitletignore
+    └── HEAD
 ```
 
 ### add

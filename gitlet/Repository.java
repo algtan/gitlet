@@ -3,10 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static gitlet.Commit.COMMIT_DIR;
@@ -43,6 +40,8 @@ public class Repository {
     public static final File REMOVAL_DIR = join(GITLET_DIR, "removal");
     /** The HEAD reference file. */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
+    /** The gitletignore file. */
+    public static final File GITLET_IGNORE = join(GITLET_DIR, "gitletignore");
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
 
@@ -59,6 +58,9 @@ public class Repository {
         String branchName = "master";
         writeContents(HEAD, branchName);
         createCommit(branchName, "initial commit", 0, new TreeMap<>(), null);
+
+        List<String> preexistingFiles = plainFilenamesIn(CWD);
+        writeContents(GITLET_IGNORE, String.join("\n", preexistingFiles));
     }
 
     public static void addFiletoStaging(String filename) {
@@ -215,6 +217,22 @@ public class Repository {
     public static void checkoutBranch(String branchName) {
         List<String> branches = plainFilenamesIn(REFS_DIR);
         String currentBranch = getCurrentBranch();
+        String branchRef = getBranchRef(currentBranch);
+        TreeMap<String, String> currentBranchTree = getCommit(branchRef).getTree();
+
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
+
+        for (String cwdFilename : plainFilenamesIn(CWD)) {
+            if (ignoredFilenames.contains(cwdFilename)) {
+                continue;
+            }
+
+            File cwdFile = join(CWD, cwdFilename);
+            String cwdFileHash = sha1(readContents(cwdFile));
+            if (!currentBranchTree.containsValue(cwdFileHash)) {
+                exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+            }
+        }
 
         if (!branches.contains(branchName)) {
             exitWithMessage("No such branch exists.");
@@ -223,6 +241,10 @@ public class Repository {
         if (currentBranch.equals(branchName)) {
             exitWithMessage("No need to checkout the current branch.");
         }
+
+        updateCwdPerCommitHash(getBranchRef(branchName));
+        clearStagingArea();
+        writeContents(HEAD, branchName);
     }
 
     public static void removeFile(String filename) {
@@ -322,5 +344,35 @@ public class Repository {
         System.out.println("Date: " + SIMPLE_DATE_FORMAT.format(commitDate));
         System.out.println(commit.getMessage());
         System.out.println();
+    }
+
+    private static void updateCwdPerCommitHash(String commitHash) {
+        TreeMap<String, String> branchTree = getCommit(commitHash).getTree();
+        for (Map.Entry<String, String> fileEntry : branchTree.entrySet()) {
+            String filename = fileEntry.getKey();
+            String blobHash = fileEntry.getValue();
+            writeBlobToCwd(filename, blobHash);
+        }
+
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
+        List<String> updatedCwdFilenames = plainFilenamesIn(CWD);
+        for (String filename : updatedCwdFilenames) {
+            if (!ignoredFilenames.contains(filename) && !branchTree.containsKey(filename)) {
+                join(CWD, filename).delete();
+            }
+        }
+    }
+
+    private static void clearStagingArea() {
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        stagedFiles = stagedFiles != null ? stagedFiles : new ArrayList<>();
+        List<String> removedFiles = plainFilenamesIn(REMOVAL_DIR);
+        removedFiles = removedFiles != null ? removedFiles : new ArrayList<>();
+
+        stagedFiles.forEach(filename -> join(STAGING_DIR, filename).delete());
+        removedFiles.forEach(filename -> join(REMOVAL_DIR, filename).delete());
+
+        STAGING_DIR.delete();
+        REMOVAL_DIR.delete();
     }
 }
