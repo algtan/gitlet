@@ -190,6 +190,8 @@ it prints the ids out on separate lines.
 
 ### branch
 
+Creates a new branch with the given name, and points it at the current head commit.
+
 ### checkout [branch name]
 
 ### rm-branch

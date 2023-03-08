@@ -15,6 +15,7 @@ public class Main {
 
         String filename;
         String message;
+        String branchName;
 
         String firstArg = args[0];
         switch(firstArg) {
@@ -109,6 +110,15 @@ public class Main {
 
                 message = args[1];
                 Repository.findCommits(message);
+                break;
+            case "branch":
+                validateNumArgs("branch", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                branchName = args[1];
+                Repository.createBranch(branchName);
                 break;
             // TODO: FILL THE REST IN
             default:

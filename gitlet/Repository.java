@@ -251,6 +251,18 @@ public class Repository {
         }
     }
 
+    public static void createBranch(String branchName) {
+        List<String> branches = plainFilenamesIn(REFS_DIR);
+        String branchRef = getBranchRef(getCurrentBranch());
+
+        if (branches.contains(branchName)) {
+            exitWithMessage("A branch with that name already exists.");
+        }
+
+        File branchFile = join(REFS_DIR, branchName);
+        writeContents(branchFile, branchRef);
+    }
+
     private static String getCurrentBranch() {
         return readContentsAsString(HEAD);
     }
