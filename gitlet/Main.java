@@ -121,6 +121,15 @@ public class Main {
                 branchName = args[1];
                 Repository.createBranch(branchName);
                 break;
+            case "rm-branch":
+                validateNumArgs("rm-branch", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                branchName = args[1];
+                Repository.removeBranch(branchName);
+                break;
             // TODO: FILL THE REST IN
             default:
                 Utils.message("No command with that name exists.");

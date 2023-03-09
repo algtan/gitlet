@@ -298,6 +298,18 @@ public class Repository {
         writeContents(branchFile, branchRef);
     }
 
+    public static void removeBranch(String branchName) {
+        if (!plainFilenamesIn(REFS_DIR).contains(branchName)) {
+            exitWithMessage("A branch with that name does not exist.");
+        }
+
+        if (getCurrentBranch().equals(branchName)) {
+            exitWithMessage("Cannot remove the current branch.");
+        }
+
+        join(REFS_DIR, branchName).delete();
+    }
+
     private static String getCurrentBranch() {
         return readContentsAsString(HEAD);
     }

@@ -203,6 +203,8 @@ checked-out branch are deleted. The staging area is cleared, unless the checked-
 
 ### rm-branch
 
+Deletes the branch with the given name. This only means to delete the pointer associated with the branch.
+
 ### reset
 
 ### merge
