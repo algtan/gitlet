@@ -1,23 +1,16 @@
 package gitlet;
 
-// TODO: any imports you need here
-
 import java.io.File;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.TreeMap;
 
 import static gitlet.Repository.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- *  @author TODO
+ *  @author Allen Tan
  */
 public class Commit implements Serializable, Dumpable {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -38,10 +31,10 @@ public class Commit implements Serializable, Dumpable {
     private String parent2Ref;
     /** The 1st parent Commit (as reference to a Commit object) of this Commit. */
     private transient Commit parent1Commit;
-    /** The 2nd parent Commit (as reference to a Commit object) of this Commit as the result of a 'merge'. */
+    /** The 2nd parent Commit (as reference to a Commit object) of this Commit as the result of a
+     * 'merge'. */
     private transient Commit parent2Commit;
 
-    /* TODO: fill in the rest of this class. */
     public Commit(String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
         this.message = message;
         this.timestamp = timestamp;

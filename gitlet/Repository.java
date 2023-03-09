@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,18 +8,11 @@ import java.util.stream.Collectors;
 import static gitlet.Commit.COMMIT_DIR;
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- *  @author TODO
+ *  @author Allen Tan
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
@@ -43,9 +35,9 @@ public class Repository {
     /** The gitletignore file. */
     public static final File GITLET_IGNORE = join(GITLET_DIR, "gitletignore");
 
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(
+            "EEE MMM d HH:mm:ss yyyy Z");
 
-    /* TODO: fill in the rest of this class. */
     public static boolean gitletInitiated() {
         return GITLET_DIR.exists();
     }
@@ -316,7 +308,8 @@ public class Repository {
         return readObject(commitFile, Commit.class);
     }
 
-    private static void createCommit(String branchName, String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
+    private static void createCommit(String branchName, String message, long timestamp,
+                                     TreeMap<String, String> tree, String parent1Ref) {
         Commit commit = new Commit(message, timestamp, tree, parent1Ref);
         String commitHash = sha1(serialize(commit));
 
@@ -343,7 +336,8 @@ public class Repository {
         System.out.println("===");
         System.out.println("commit " + commitHash);
         if (parent2Ref != null) {
-            System.out.println("Merge: " + parent1Ref.substring(0, 7) + " " + parent2Ref.substring(0, 7));
+            System.out.println("Merge: "
+                    + parent1Ref.substring(0, 7) + " " + parent2Ref.substring(0, 7));
         }
         System.out.println("Date: " + SIMPLE_DATE_FORMAT.format(commitDate));
         System.out.println(commit.getMessage());
@@ -358,7 +352,8 @@ public class Repository {
             writeBlobToCwd(filename, blobHash);
         }
 
-        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE)
+                .split("\n"));
         List<String> updatedCwdFilenames = plainFilenamesIn(CWD);
         for (String filename : updatedCwdFilenames) {
             if (!ignoredFilenames.contains(filename) && !branchTree.containsKey(filename)) {
@@ -385,7 +380,8 @@ public class Repository {
         String branchRef = getBranchRef(currentBranch);
         TreeMap<String, String> currentBranchTree = getCommit(branchRef).getTree();
 
-        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE)
+                .split("\n"));
 
         for (String cwdFilename : plainFilenamesIn(CWD)) {
             if (ignoredFilenames.contains(cwdFilename)) {
@@ -395,7 +391,8 @@ public class Repository {
             File cwdFile = join(CWD, cwdFilename);
             String cwdFileHash = sha1(readContents(cwdFile));
             if (!currentBranchTree.containsValue(cwdFileHash)) {
-                exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+                exitWithMessage("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
             }
         }
     }
