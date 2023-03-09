@@ -114,6 +114,7 @@ public class Repository {
 
         for (String removedFile : removedFiles) {
             join(REMOVAL_DIR, removedFile).delete();
+            newCommitTree.remove(removedFile);
         }
 
         STAGING_DIR.delete();
@@ -146,7 +147,14 @@ public class Repository {
         String currentBranch = getCurrentBranch();
         List<String> branches = plainFilenamesIn(REFS_DIR);
         List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        stagedFiles = stagedFiles != null ? stagedFiles : new ArrayList<>();
         List<String> removedFiles = plainFilenamesIn(REMOVAL_DIR);
+        removedFiles = removedFiles != null ? removedFiles : new ArrayList<>();
+
+        TreeMap<String, String> commitTree = getCommit(getBranchRef(getCurrentBranch())).getTree();
+        List<String> cwdFilenames = plainFilenamesIn(CWD);
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE)
+                .split("\n"));
 
         int currentBranchIndex = branches.indexOf(currentBranch);
         branches.set(currentBranchIndex, "*" + currentBranch);
@@ -158,7 +166,7 @@ public class Repository {
         System.out.println();
 
         System.out.println("=== Staged Files ===");
-        if (stagedFiles != null) {
+        if (stagedFiles.size() > 0) {
             for (String stagedFile : stagedFiles) {
                 System.out.println(stagedFile);
             }
@@ -166,7 +174,7 @@ public class Repository {
         System.out.println();
 
         System.out.println("=== Removed Files ===");
-        if (removedFiles != null) {
+        if (removedFiles.size() > 0) {
             for (String removedFile : removedFiles) {
                 System.out.println(removedFile);
             }
@@ -174,9 +182,27 @@ public class Repository {
         System.out.println();
 
         System.out.println("=== Modifications Not Staged For Commit ===");
+        for (Map.Entry<String, String> fileEntry : commitTree.entrySet()) {
+            String filename = fileEntry.getKey();
+            String blobHash = fileEntry.getValue();
+
+            if (!removedFiles.contains(filename) && !cwdFilenames.contains(filename)) {
+                System.out.println(filename + " (deleted)");
+            }
+
+            File cwdFile = join(CWD, filename);
+            if (cwdFile.exists() && !sha1(readContents(cwdFile)).equals(blobHash)) {
+                System.out.println(filename + " (modified)");
+            }
+        }
         System.out.println();
 
         System.out.println("=== Untracked Files ===");
+        for (String cwdFilename : cwdFilenames) {
+            if (!stagedFiles.contains(cwdFilename) && !commitTree.containsKey(cwdFilename)) {
+                System.out.println(cwdFilename);
+            }
+        }
         System.out.println();
     }
 
