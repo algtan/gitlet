@@ -16,6 +16,7 @@ public class Main {
         String filename;
         String message;
         String branchName;
+        String commitId;
 
         String firstArg = args[0];
         switch(firstArg) {
@@ -129,6 +130,15 @@ public class Main {
 
                 branchName = args[1];
                 Repository.removeBranch(branchName);
+                break;
+            case "reset":
+                validateNumArgs("reset", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                commitId = args[1];
+                Repository.resetToCommitId(commitId);
                 break;
             // TODO: FILL THE REST IN
             default:

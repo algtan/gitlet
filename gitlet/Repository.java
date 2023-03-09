@@ -194,13 +194,7 @@ public class Repository {
     }
 
     public static void checkoutFilePerCommitId(String commitId, String filename) {
-        if (commitId.length() != UID_LENGTH) {
-            String shortenedId = commitId;
-            commitId = plainFilenamesIn(COMMIT_DIR).stream()
-                    .filter(commit -> commit.startsWith(shortenedId))
-                    .findFirst()
-                    .orElse(shortenedId);
-        }
+        commitId = getFullCommitId(commitId);
 
         if (!join(COMMIT_DIR, commitId).exists()) {
             exitWithMessage("No commit with that id exists.");
@@ -215,30 +209,13 @@ public class Repository {
     }
 
     public static void checkoutBranch(String branchName) {
-        List<String> branches = plainFilenamesIn(REFS_DIR);
-        String currentBranch = getCurrentBranch();
-        String branchRef = getBranchRef(currentBranch);
-        TreeMap<String, String> currentBranchTree = getCommit(branchRef).getTree();
+        checkUntrackedFilesExist();
 
-        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
-
-        for (String cwdFilename : plainFilenamesIn(CWD)) {
-            if (ignoredFilenames.contains(cwdFilename)) {
-                continue;
-            }
-
-            File cwdFile = join(CWD, cwdFilename);
-            String cwdFileHash = sha1(readContents(cwdFile));
-            if (!currentBranchTree.containsValue(cwdFileHash)) {
-                exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
-            }
-        }
-
-        if (!branches.contains(branchName)) {
+        if (!plainFilenamesIn(REFS_DIR).contains(branchName)) {
             exitWithMessage("No such branch exists.");
         }
 
-        if (currentBranch.equals(branchName)) {
+        if (getCurrentBranch().equals(branchName)) {
             exitWithMessage("No need to checkout the current branch.");
         }
 
@@ -308,6 +285,21 @@ public class Repository {
         }
 
         join(REFS_DIR, branchName).delete();
+    }
+
+    public static void resetToCommitId(String commitId) {
+        checkUntrackedFilesExist();
+
+        commitId = getFullCommitId(commitId);
+
+        if (!join(COMMIT_DIR, commitId).exists()) {
+            exitWithMessage("No commit with that id exists.");
+        }
+
+        updateCwdPerCommitHash(commitId);
+        clearStagingArea();
+
+        writeContents(join(REFS_DIR, getCurrentBranch()), commitId);
     }
 
     private static String getCurrentBranch() {
@@ -386,5 +378,36 @@ public class Repository {
 
         STAGING_DIR.delete();
         REMOVAL_DIR.delete();
+    }
+
+    private static void checkUntrackedFilesExist() {
+        String currentBranch = getCurrentBranch();
+        String branchRef = getBranchRef(currentBranch);
+        TreeMap<String, String> currentBranchTree = getCommit(branchRef).getTree();
+
+        List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE).split("\n"));
+
+        for (String cwdFilename : plainFilenamesIn(CWD)) {
+            if (ignoredFilenames.contains(cwdFilename)) {
+                continue;
+            }
+
+            File cwdFile = join(CWD, cwdFilename);
+            String cwdFileHash = sha1(readContents(cwdFile));
+            if (!currentBranchTree.containsValue(cwdFileHash)) {
+                exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+            }
+        }
+    }
+
+    private static String getFullCommitId(String commitId) {
+        if (commitId.length() != UID_LENGTH) {
+            String shortenedId = commitId;
+            commitId = plainFilenamesIn(COMMIT_DIR).stream()
+                    .filter(commit -> commit.startsWith(shortenedId))
+                    .findFirst()
+                    .orElse(shortenedId);
+        }
+        return commitId;
     }
 }
