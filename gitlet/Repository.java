@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static gitlet.Commit.COMMIT_DIR;
+import static gitlet.GitletFiles.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet repository.
@@ -17,23 +17,6 @@ public class Repository {
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
-
-    /** The current working directory. */
-    public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
-    /** The blobs directory. */
-    public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-    /** The refs directory (for branches). */
-    public static final File REFS_DIR = join(GITLET_DIR, "refs");
-    /** The staging area. */
-    public static final File STAGING_DIR = join(GITLET_DIR, "staging");
-    /** The removal area. */
-    public static final File REMOVAL_DIR = join(GITLET_DIR, "removal");
-    /** The HEAD reference file. */
-    public static final File HEAD = join(GITLET_DIR, "HEAD");
-    /** The gitletignore file. */
-    public static final File GITLET_IGNORE = join(GITLET_DIR, "gitletignore");
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(
             "EEE MMM d HH:mm:ss yyyy Z");

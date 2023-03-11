@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.TreeMap;
 
-import static gitlet.Repository.*;
+import static gitlet.GitletFiles.*;
 
 /** Represents a gitlet commit object.
  *  @author Allen Tan
@@ -16,8 +16,6 @@ public class Commit implements Serializable, Dumpable {
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
      */
-
-    static final File COMMIT_DIR = Utils.join(GITLET_DIR, "commits");
 
     /** The message of this Commit. */
     private String message;
