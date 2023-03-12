@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static gitlet.GitletFiles.*;
+import static gitlet.Commit.*;
 import static gitlet.Reference.*;
 import static gitlet.Utils.*;
 
@@ -302,13 +303,6 @@ public class Repository {
         clearStagingArea();
 
         writeContents(join(REFS_DIR, getCurrentBranch()), commitId);
-    }
-
-
-
-    private static Commit getCommit(String hash) {
-        File commitFile = join(COMMIT_DIR, hash);
-        return readObject(commitFile, Commit.class);
     }
 
     private static void createCommit(String branchName, String message, long timestamp,

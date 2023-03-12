@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 import static gitlet.GitletFiles.*;
+import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
  *  @author Allen Tan
@@ -83,5 +84,10 @@ public class Commit implements Serializable, Dumpable {
         System.out.println("tree:" + this.tree.toString());
         System.out.println("parent1Ref " + this.parent1Ref);
         System.out.println("parent2Ref " + this.parent2Ref);
+    }
+
+    public static Commit getCommit(String hash) {
+        File commitFile = join(COMMIT_DIR, hash);
+        return readObject(commitFile, Commit.class);
     }
 }
