@@ -30,7 +30,6 @@ public class GitletPaths {
                 traverseCurrentBranch(gitletGraph, w);
             }
         }
-
     }
 
     private void findSplitPoint(GitletGraph gitletGraph, int v) {
