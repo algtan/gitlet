@@ -80,6 +80,24 @@ file may contain the SHA-1 value of a gitlet object.
 
 ## Algorithms
 
+### Find the latest common ancestor (split point)
+
+The Commits in gitlet form a directed acyclic graph (DAG), where child commits have a reference to parent commits, but
+the parent commits don't have any references to their children. When merging two branches, it is important to find a
+latest common ancestor (split point) to serve as a baseline that helps us make a decision about how to combine the
+changes together into one commit.
+
+Steps:
+1. Create a graph of all the commits in the `refs` folder
+2. Traverse through the graph starting from one branch's latest commit, creating a set of all the visited vertices
+   (commits)
+3. Using Breadth First Search (BFS), traverse through the graph starting from the other branch's latest commit
+   - Use a queue to know which vertex to visit next
+   - Since we're using BFS, the vertices will be added to the queue based on distance from the child commit
+   - Dequeue the next item and see if it is contained in the set of the first branch's commits
+   - Once we find an item in the queue that is contained in the set, we have our split point
+
+
 ## Persistence
 The directory structure looks like this:
 
