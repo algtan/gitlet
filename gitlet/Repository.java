@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static gitlet.GitletFiles.*;
+import static gitlet.Reference.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet repository.
@@ -303,14 +304,7 @@ public class Repository {
         writeContents(join(REFS_DIR, getCurrentBranch()), commitId);
     }
 
-    private static String getCurrentBranch() {
-        return readContentsAsString(HEAD);
-    }
 
-    private static String getBranchRef(String branchName) {
-        File branchFile = join(REFS_DIR, branchName);
-        return readContentsAsString(branchFile);
-    }
 
     private static Commit getCommit(String hash) {
         File commitFile = join(COMMIT_DIR, hash);
