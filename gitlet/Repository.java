@@ -305,6 +305,32 @@ public class Repository {
         writeContents(join(REFS_DIR, getCurrentBranch()), commitId);
     }
 
+    public static void mergeToCurrentBranch(String branchName) {
+        System.out.println("---CURRENT BRANCH---");
+        logHeadHistory();
+        System.out.println();
+        System.out.println();
+
+        System.out.println("---MERGING BRANCH---");
+        String parentRef = getBranchRef(branchName);
+        while (parentRef != null) {
+            Commit currentCommit = getCommit(parentRef);
+
+            printCommitInfo(currentCommit, parentRef);
+
+            parentRef = currentCommit.getParent1Ref();
+        }
+        System.out.println();
+        System.out.println();
+
+        List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
+        GitletGraph commitGraph = new GitletGraph(commitHashes);
+        String splitPoint = new GitletPaths(commitGraph, branchName).getSplitPoint();
+
+        System.out.println("---SPLIT POINT---");
+        System.out.println(splitPoint);
+    }
+
     private static void createCommit(String branchName, String message, long timestamp,
                                      TreeMap<String, String> tree, String parent1Ref) {
         Commit commit = new Commit(message, timestamp, tree, parent1Ref);

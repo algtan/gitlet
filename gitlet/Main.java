@@ -140,7 +140,15 @@ public class Main {
                 commitId = args[1];
                 Repository.resetToCommitId(commitId);
                 break;
-            // TODO: FILL THE REST IN
+            case "merge":
+                validateNumArgs("merge", args, 2);
+                if (!Repository.gitletInitiated()) {
+                    Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+                }
+
+                branchName = args[1];
+                Repository.mergeToCurrentBranch(branchName);
+                break;
             default:
                 Utils.message("No command with that name exists.");
         }
