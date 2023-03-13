@@ -34,11 +34,13 @@ public class Commit implements Serializable, Dumpable {
      * 'merge'. */
     private transient Commit parent2Commit;
 
-    public Commit(String message, long timestamp, TreeMap<String, String> tree, String parent1Ref) {
+    public Commit(String message, long timestamp, TreeMap<String, String> tree,
+                  String parent1Ref, String parent2Ref) {
         this.message = message;
         this.timestamp = timestamp;
         this.tree = tree;
         this.parent1Ref = parent1Ref;
+        this.parent2Ref = parent2Ref;
     }
 
     public String getMessage() {

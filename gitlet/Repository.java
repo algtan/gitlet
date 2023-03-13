@@ -34,7 +34,7 @@ public class Repository {
 
         String branchName = "master";
         writeContents(HEAD, branchName);
-        createCommit(branchName, "initial commit", 0, new TreeMap<>(), null);
+        createCommit(branchName, "initial commit", 0, new TreeMap<>(), null, null);
 
         List<String> preexistingFiles = plainFilenamesIn(CWD);
         writeContents(GITLET_IGNORE, String.join("\n", preexistingFiles));
@@ -65,14 +65,19 @@ public class Repository {
     }
 
     public static void commitStagedChanges(String message) {
+        commitStagedChanges(message, null);
+    }
+
+    public static void commitStagedChanges(String message, String mergingBranch) {
         if (message.isBlank()) {
             exitWithMessage("Please enter a commit message.");
         }
 
         String currentBranch = getCurrentBranch();
-        String parentRef = getBranchRef(currentBranch);
+        String parent1Ref = getBranchRef(currentBranch);
+        String parent2Ref = getBranchRef(mergingBranch);
 
-        TreeMap<String, String> parentCommitTree = getCommit(parentRef).getTree();
+        TreeMap<String, String> parentCommitTree = getCommit(parent1Ref).getTree();
         TreeMap<String, String> newCommitTree = new TreeMap<>();
         newCommitTree.putAll(parentCommitTree);
 
@@ -105,7 +110,8 @@ public class Repository {
         STAGING_DIR.delete();
         REMOVAL_DIR.delete();
         long currentTimestamp = new Date().getTime() / 1000;
-        createCommit(currentBranch, message, currentTimestamp, newCommitTree, parentRef);
+        createCommit(currentBranch, message, currentTimestamp, newCommitTree,
+                parent1Ref, parent2Ref);
     }
 
     public static void logHeadHistory() {
@@ -184,7 +190,8 @@ public class Repository {
 
         System.out.println("=== Untracked Files ===");
         for (String cwdFilename : cwdFilenames) {
-            if (!stagedFiles.contains(cwdFilename) && !commitTree.containsKey(cwdFilename)) {
+            if (!stagedFiles.contains(cwdFilename) && !commitTree.containsKey(cwdFilename)
+                    && !ignoredFilenames.contains(cwdFilename)) {
                 System.out.println(cwdFilename);
             }
         }
@@ -306,34 +313,45 @@ public class Repository {
     }
 
     public static void mergeToCurrentBranch(String branchName) {
-        System.out.println("---CURRENT BRANCH---");
-        logHeadHistory();
-        System.out.println();
-        System.out.println();
-
-        System.out.println("---MERGING BRANCH---");
-        String parentRef = getBranchRef(branchName);
-        while (parentRef != null) {
-            Commit currentCommit = getCommit(parentRef);
-
-            printCommitInfo(currentCommit, parentRef);
-
-            parentRef = currentCommit.getParent1Ref();
-        }
-        System.out.println();
-        System.out.println();
-
+        String currentBranch = getCurrentBranch();
         List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
         GitletGraph commitGraph = new GitletGraph(commitHashes);
-        String splitPoint = new GitletPaths(commitGraph, branchName).getSplitPoint();
+        String splitPointHash = new GitletPaths(commitGraph, branchName).getSplitPoint();
 
-        System.out.println("---SPLIT POINT---");
-        System.out.println(splitPoint);
+        TreeMap<String, String> splitPointTree = getCommit(splitPointHash).getTree();
+        TreeMap<String, String> currentBranchTree = getCommit(getBranchRef(currentBranch))
+                .getTree();
+        TreeMap<String, String> mergingBranchTree = getCommit(getBranchRef(branchName)).getTree();
+
+        Set<String> mergingFilenames = new HashSet<>();
+        mergingFilenames.addAll(currentBranchTree.keySet());
+        mergingFilenames.addAll(mergingBranchTree.keySet());
+
+        for (String filename : mergingFilenames) {
+            String splitPointBlob = splitPointTree.get(filename);
+            String currentBranchBlob = currentBranchTree.get(filename);
+            String mergingBranchBlob = mergingBranchTree.get(filename);
+
+            if (Objects.equals(splitPointBlob, currentBranchBlob) && mergingBranchBlob == null) {
+                removeFile(filename);
+                continue;
+            }
+
+            if (Objects.equals(splitPointBlob, currentBranchBlob)
+                    && !Objects.equals(splitPointBlob, mergingBranchBlob)) {
+                writeBlobToCwd(filename, mergingBranchBlob);
+                addFiletoStaging(filename);
+            }
+        }
+
+        String mergedCommitMsg = "Merged " + branchName + " into " + currentBranch + ".";
+        commitStagedChanges(mergedCommitMsg, branchName);
     }
 
-    private static void createCommit(String branchName, String message, long timestamp,
-                                     TreeMap<String, String> tree, String parent1Ref) {
-        Commit commit = new Commit(message, timestamp, tree, parent1Ref);
+    private static void createCommit(String branchName, String message,
+                                     long timestamp, TreeMap<String, String> tree,
+                                     String parent1Ref, String parent2Ref) {
+        Commit commit = new Commit(message, timestamp, tree, parent1Ref, parent2Ref);
         String commitHash = sha1(serialize(commit));
 
         File commitFile = join(COMMIT_DIR, commitHash);

@@ -11,6 +11,9 @@ public class Reference {
     }
 
     public static String getBranchRef(String branchName) {
+        if (branchName == null) {
+            return null;
+        }
         File branchFile = join(REFS_DIR, branchName);
         return readContentsAsString(branchFile);
     }
