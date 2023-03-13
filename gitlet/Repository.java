@@ -23,6 +23,12 @@ public class Repository {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(
             "EEE MMM d HH:mm:ss yyyy Z");
 
+    private static final String HEAD_CONFLICT_MARKER = "<<<<<<< HEAD" + System.lineSeparator();
+
+    private static final String GIVEN_BRANCH_CONFLICT_MARKER = "=======" + System.lineSeparator();
+
+    private static final String CONFLICT_MARKER_END = ">>>>>>>" + System.lineSeparator();
+
     public static boolean gitletInitiated() {
         return GITLET_DIR.exists();
     }
@@ -313,6 +319,8 @@ public class Repository {
     }
 
     public static void mergeToCurrentBranch(String branchName) {
+        boolean mergeConflictExists = false;
+
         String currentBranch = getCurrentBranch();
         List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
         GitletGraph commitGraph = new GitletGraph(commitHashes);
@@ -341,11 +349,33 @@ public class Repository {
                     && !Objects.equals(splitPointBlob, mergingBranchBlob)) {
                 writeBlobToCwd(filename, mergingBranchBlob);
                 addFiletoStaging(filename);
+                continue;
+            }
+
+            if (!Objects.equals(splitPointBlob, currentBranchBlob)
+                    && !Objects.equals(splitPointBlob, mergingBranchBlob)
+                    && !Objects.equals(currentBranchBlob, mergingBranchBlob)) {
+                String currentBranchBlobContents = currentBranchBlob != null
+                        ? readContentsAsString(join(BLOBS_DIR, currentBranchBlob)) : "";
+                String mergingBranchBlobContents = mergingBranchBlob != null
+                        ? readContentsAsString(join(BLOBS_DIR, mergingBranchBlob)) : "";
+
+                String conflictingFileContents = HEAD_CONFLICT_MARKER + currentBranchBlobContents
+                        + GIVEN_BRANCH_CONFLICT_MARKER + mergingBranchBlobContents
+                        + CONFLICT_MARKER_END;
+
+                writeContents(join(CWD, filename), conflictingFileContents);
+                addFiletoStaging(filename);
+                mergeConflictExists = true;
             }
         }
 
         String mergedCommitMsg = "Merged " + branchName + " into " + currentBranch + ".";
         commitStagedChanges(mergedCommitMsg, branchName);
+
+        if (mergeConflictExists) {
+            System.out.println("Encountered a merge conflict.");
+        }
     }
 
     private static void createCommit(String branchName, String message,
