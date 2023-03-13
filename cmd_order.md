@@ -12,9 +12,13 @@ java gitlet.DumpCommit <hash>
 
 # Testing
 - `/proj2` dir 
-  - javac gitlet/Main.java
+  - Recompile Main
+    - javac gitlet/Main.java
+  - Recompile all .java files
+    -  javac gitlet/*.java
 - `/testing` dir
   - Individual Test
     - python3 tester.py --verbose student_tests/<.in file>
+    - python3 tester.py --verbose --keep student_tests/<.in file>
   - All Tests
     - make check
