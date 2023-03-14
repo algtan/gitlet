@@ -319,6 +319,8 @@ public class Repository {
     }
 
     public static void mergeToCurrentBranch(String branchName) {
+        checkForMergeErrors(branchName);
+
         boolean mergeConflictExists = false;
 
         String currentBranch = getCurrentBranch();
@@ -447,21 +449,17 @@ public class Repository {
     }
 
     private static void checkUntrackedFilesExist() {
-        String currentBranch = getCurrentBranch();
-        String branchRef = getBranchRef(currentBranch);
-        TreeMap<String, String> currentBranchTree = getCommit(branchRef).getTree();
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        stagedFiles = stagedFiles != null ? stagedFiles : new ArrayList<>();
 
+        TreeMap<String, String> commitTree = getCommit(getBranchRef(getCurrentBranch())).getTree();
+        List<String> cwdFilenames = plainFilenamesIn(CWD);
         List<String> ignoredFilenames = Arrays.asList(readContentsAsString(GITLET_IGNORE)
                 .split("\n"));
 
-        for (String cwdFilename : plainFilenamesIn(CWD)) {
-            if (ignoredFilenames.contains(cwdFilename)) {
-                continue;
-            }
-
-            File cwdFile = join(CWD, cwdFilename);
-            String cwdFileHash = sha1(readContents(cwdFile));
-            if (!currentBranchTree.containsValue(cwdFileHash)) {
+        for (String cwdFilename : cwdFilenames) {
+            if (!stagedFiles.contains(cwdFilename) && !commitTree.containsKey(cwdFilename)
+                    && !ignoredFilenames.contains(cwdFilename)) {
                 exitWithMessage("There is an untracked file in the way;"
                         + " delete it, or add and commit it first.");
             }
@@ -477,5 +475,25 @@ public class Repository {
                     .orElse(shortenedId);
         }
         return commitId;
+    }
+
+    private static void checkForMergeErrors(String branchName) {
+        checkUntrackedFilesExist();
+
+        if (!plainFilenamesIn(REFS_DIR).contains(branchName)) {
+            exitWithMessage("A branch with that name does not exist.");
+        }
+
+        if (getCurrentBranch().equals(branchName)) {
+            exitWithMessage("Cannot merge a branch with itself.");
+        }
+
+        List<String> stagedFiles = plainFilenamesIn(STAGING_DIR);
+        stagedFiles = stagedFiles != null ? stagedFiles : new ArrayList<>();
+        List<String> removedFiles = plainFilenamesIn(REMOVAL_DIR);
+        removedFiles = removedFiles != null ? removedFiles : new ArrayList<>();
+        if (stagedFiles.size() > 0 || removedFiles.size() > 0) {
+            exitWithMessage("You have uncommitted changes.");
+        }
     }
 }
