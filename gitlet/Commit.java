@@ -28,11 +28,6 @@ public class Commit implements Serializable, Dumpable {
     private String parent1Ref;
     /** The 2nd parent Commit (as a reference string) of this Commit as the result of a 'merge'. */
     private String parent2Ref;
-    /** The 1st parent Commit (as reference to a Commit object) of this Commit. */
-    private transient Commit parent1Commit;
-    /** The 2nd parent Commit (as reference to a Commit object) of this Commit as the result of a
-     * 'merge'. */
-    private transient Commit parent2Commit;
 
     public Commit(String message, long timestamp, TreeMap<String, String> tree,
                   String parent1Ref, String parent2Ref) {
@@ -61,22 +56,6 @@ public class Commit implements Serializable, Dumpable {
 
     public String getParent2Ref() {
         return parent2Ref;
-    }
-
-    public Commit getParent1Commit() {
-        return parent1Commit;
-    }
-
-    public void setParent1Commit(Commit parent1Commit) {
-        this.parent1Commit = parent1Commit;
-    }
-
-    public Commit getParent2Commit() {
-        return parent2Commit;
-    }
-
-    public void setParent2Commit(Commit parent2Commit) {
-        this.parent2Commit = parent2Commit;
     }
 
     @Override
