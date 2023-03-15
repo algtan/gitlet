@@ -7,7 +7,10 @@ import static gitlet.Reference.*;
 public class GitletPaths {
     private final boolean[] currentBranchMarked;
     private final boolean[] mergingBranchMarked;
-    private String splitPoint;
+    private final int currentBranchStartingVertex;
+    private final int mergingBranchStartingVertex;
+    private int splitPointVertex;
+    private String splitPointHash;
 
     public GitletPaths(GitletGraph gitletGraph, String mergingBranch) {
         int V = gitletGraph.getV();
@@ -15,11 +18,11 @@ public class GitletPaths {
         mergingBranchMarked = new boolean[V];
 
         String currentBranchStartingRef = getBranchRef(getCurrentBranch());
-        int currentBranchStartingVertex = gitletGraph.getVertexMap().get(currentBranchStartingRef);
+        currentBranchStartingVertex = gitletGraph.getVertexMap().get(currentBranchStartingRef);
         traverseCurrentBranch(gitletGraph, currentBranchStartingVertex);
 
         String mergingBranchStartingRef = getBranchRef(mergingBranch);
-        int mergingBranchStartingVertex = gitletGraph.getVertexMap().get(mergingBranchStartingRef);
+        mergingBranchStartingVertex = gitletGraph.getVertexMap().get(mergingBranchStartingRef);
         findSplitPoint(gitletGraph, mergingBranchStartingVertex);
     }
 
@@ -45,11 +48,24 @@ public class GitletPaths {
                 }
             }
         }
-        splitPoint = gitletGraph.getCommitHashes().get(v);
+        splitPointVertex = v;
+        splitPointHash = gitletGraph.getCommitHashes().get(v);
     }
 
-    public String getSplitPoint() {
-        return splitPoint;
+    public int getCurrentBranchStartingVertex() {
+        return currentBranchStartingVertex;
+    }
+
+    public int getMergingBranchStartingVertex() {
+        return mergingBranchStartingVertex;
+    }
+
+    public int getSplitPointVertex() {
+        return splitPointVertex;
+    }
+
+    public String getSplitPointHash() {
+        return splitPointHash;
     }
 }
 

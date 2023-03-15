@@ -326,7 +326,19 @@ public class Repository {
         String currentBranch = getCurrentBranch();
         List<String> commitHashes = plainFilenamesIn(COMMIT_DIR);
         GitletGraph commitGraph = new GitletGraph(commitHashes);
-        String splitPointHash = new GitletPaths(commitGraph, branchName).getSplitPoint();
+        GitletPaths paths = new GitletPaths(commitGraph, branchName);
+        String splitPointHash = paths.getSplitPointHash();
+
+        int splitPointVertex = paths.getSplitPointVertex();
+        if (splitPointVertex == paths.getMergingBranchStartingVertex()) {
+            exitWithMessage("Given branch is an ancestor of the current branch.");
+        }
+
+        if (splitPointVertex == paths.getCurrentBranchStartingVertex()) {
+            checkoutBranch(branchName);
+            System.out.println("Current branch fast-forwarded.");
+            return;
+        }
 
         TreeMap<String, String> splitPointTree = getCommit(splitPointHash).getTree();
         TreeMap<String, String> currentBranchTree = getCommit(getBranchRef(currentBranch))
